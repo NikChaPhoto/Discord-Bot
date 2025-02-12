@@ -1,26 +1,14 @@
 import discord
-import myToken
 from transformers import pipeline
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
-# Intents aktivieren
+TOKEN = os.getenv("DISCORD_TOKEN")
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
-token = myToken.token
-
-print("Lade GPT-2-Modell...")
-text_generator = pipeline('text-generation', model='gpt2')
-print("GPT-2-Modell geladen!")
-
-
-@client.event
-async def on_ready():
-    print(f'Bot {client.user} verbunden!')
-
-
-# GPT-2 laden (CPU verwenden)
-text_generator = pipeline('text-generation', model='gpt2', device=-0)
-
+# Intents aktivieren
 @client.event
 async def on_ready():
     print(f'Bot {client.user} verbunden!')
@@ -60,4 +48,10 @@ async def on_message(message):
         await message.channel.send("Es ist ein Fehler bei der Textgenerierung aufgetreten.")
 
 # Füge deinen neuen Token hier ein!
-client.run(token)
+if __name__ == '__main__':
+    if TOKEN:
+        text_generator = pipeline('text-generation', model='gpt2', device=0)  # device(-1 - CPU, 0 - GPU)
+        print("GPT-2-Modell geladen!")
+        client.run(TOKEN)
+    else:
+        print("Der Token ist nicht vorhanden")
